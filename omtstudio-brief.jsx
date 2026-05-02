@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 // ═══════════════════════════════════════════════════════════
 const CONFIG = {
   whatsapp:    "393277582912",
-  formspreeId: "XXXXXXXX",          // da formspree.io dopo deploy
+  formspreeId: "xrejepdv",          // da formspree.io dopo deploy
   email:       "hello@omtstudio.it",
   agency:      "OMTStudio",
   tagline:     "Brand Architect & Digital Transformation",
