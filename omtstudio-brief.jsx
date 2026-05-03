@@ -264,20 +264,56 @@ function buildWAText(answers, lang) {
 }
 
 async function sendEmailForm(answers, lang) {
-  const t = LANGS[lang];
   if (CONFIG.formspreeId === "XXXXXXXX") return false;
-  const body = { "_subject": `Brief — ${answers["businessName"] || "Nuovo cliente"} | ${CONFIG.agency}` };
+  const t = LANGS[lang];
   const allSections = [...SECTION_FLOW_BASE];
   const gate = answers["wantsSocial"];
   if (gate && (gate.includes("Sì") || gate.includes("نعم") || gate.includes("Да"))) allSections.push("social");
+
+  let html = `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+    <div style="background:#1B3A52;padding:20px;border-radius:8px 8px 0 0;">
+      <h1 style="color:#fff;margin:0;font-size:20px;">OMTStudio</h1>
+      <p style="color:#CBB57B;margin:4px 0 0;font-size:12px;">Brand Architect & Digital Transformation</p>
+    </div>
+    <div style="background:#F0F8FA;padding:16px;border-bottom:3px solid #3A9BAF;">
+      <p style="margin:0;color:#1B3A52;font-size:14px;font-weight:bold;">📋 ${t.title}</p>
+      <p style="margin:4px 0 0;color:#5A7A8E;font-size:12px;">Lingua: ${lang.toUpperCase()} · ${new Date().toLocaleDateString('it-IT')} · 2026</p>
+    </div>`;
+
   allSections.forEach(secId => {
-    SECTIONS[secId].forEach(qId => {
+    const sec = t.sections[secId];
+    html += `<div style="margin-top:0;">
+      <div style="background:#1B3A52;padding:10px 16px;">
+        <p style="margin:0;color:#CBB57B;font-size:13px;font-weight:bold;">${sec.icon} ${sec.label}</p>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">`;
+    SECTIONS[secId].forEach((qId, i) => {
       const qData = t.q[qId];
       if (!qData) return;
       const val = answers[qId];
-      if (val) body[qId] = Array.isArray(val) ? val.join(", ") : val;
+      if (!val || (Array.isArray(val) && val.length === 0)) return;
+      const display = Array.isArray(val) ? val.join(", ") : val;
+      const bg = i % 2 === 0 ? "#ffffff" : "#F0F8FA";
+      html += `<tr style="background:${bg};">
+        <td style="padding:8px 16px;font-size:11px;color:#5A7A8E;width:40%;vertical-align:top;border-bottom:1px solid #D4EEF2;">${qData.label}</td>
+        <td style="padding:8px 16px;font-size:12px;color:#1B3A52;font-weight:500;border-bottom:1px solid #D4EEF2;">${display}</td>
+      </tr>`;
     });
+    html += `</table></div>`;
   });
+
+  html += `<div style="background:#1B3A52;padding:14px;border-radius:0 0 8px 8px;text-align:center;">
+    <p style="margin:0;color:#7ECADB;font-size:10px;letter-spacing:2px;">OMTSTUDIO · hello@omtstudio.it · omtstudio.it</p>
+  </div></div>`;
+
+  const body = {
+    "_subject": `📋 Brief — ${answers["businessName"] || "Nuovo cliente"} | ${CONFIG.agency}`,
+    "_format": "html",
+    "message": html,
+    "lingua": lang.toUpperCase(),
+    "cliente": answers["businessName"] || "Non specificato",
+  };
+
   try {
     const res = await fetch(`https://formspree.io/f/${CONFIG.formspreeId}`, {
       method: "POST",
