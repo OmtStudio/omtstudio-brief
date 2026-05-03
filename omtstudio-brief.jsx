@@ -275,7 +275,7 @@ async function sendEmailForm(answers, lang) {
       const qData = t.q[qId];
       if (!qData) return;
       const val = answers[qId];
-      if (val) body[qData.label] = Array.isArray(val) ? val.join(", ") : val;
+      if (val) body[qId] = Array.isArray(val) ? val.join(", ") : val;
     });
   });
   try {
