@@ -572,19 +572,24 @@ export default function App() {
         </div>
       </div>
       {showLang && (
-        <div style={{display:"flex",background:"rgba(255,255,255,0.08)",borderRadius:999,border:`1px solid rgba(255,255,255,0.12)`,overflow:"hidden"}}>
-          {["it","ar","ru"].map(l => (
-            <button key={l} onClick={()=>setLang(l)} style={{
-              padding:"5px 11px",border:"none",cursor:"pointer",
-              fontFamily:font,fontSize:11,fontWeight:600,
-              background:lang===l?C.tiffany:"transparent",
-              color:lang===l?C.white:"rgba(255,255,255,0.45)",
-              transition:"all 0.2s",
-            }}>
-              {LANGS[l].flag}
-            </button>
-          ))}
-        </div>
+        <div style={{display:"flex",gap:6}}>
+  {["it","ar","ru"].map(l => (
+    <button key={l} onClick={()=>setLang(l)} style={{
+      padding:"7px 12px",
+      border:`2px solid ${lang===l ? C.gold : "rgba(255,255,255,0.25)"}`,
+      borderRadius:10,cursor:"pointer",
+      fontFamily:font,fontSize:13,fontWeight:700,
+      background:lang===l ? C.gold : "rgba(255,255,255,0.1)",
+      color:lang===l ? C.navy : C.white,
+      transition:"all 0.2s",
+      display:"flex",alignItems:"center",gap:5,
+      boxShadow:lang===l ? `0 2px 12px rgba(203,181,123,0.4)` : "none",
+    }}>
+      <span style={{fontSize:18}}>{LANGS[l].flag}</span>
+      <span style={{fontSize:11,letterSpacing:1}}>{LANGS[l].code}</span>
+    </button>
+  ))}
+</div>
       )}
     </div>
   );
