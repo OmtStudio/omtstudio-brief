@@ -264,20 +264,39 @@ function buildWAText(answers, lang) {
 }
 
 async function sendEmailForm(answers, lang) {
-  const t = LANGS[lang];
   if (CONFIG.formspreeId === "XXXXXXXX") return false;
-  const body = { "_subject": `Brief — ${answers["businessName"] || "Nuovo cliente"} | ${CONFIG.agency}` };
+  const t = LANGS["it"]; // sempre italiano per le email
   const allSections = [...SECTION_FLOW_BASE];
   const gate = answers["wantsSocial"];
   if (gate && (gate.includes("Sì") || gate.includes("نعم") || gate.includes("Да"))) allSections.push("social");
+
+  let testo = `BRIEF CLIENTE — OMTStudio\n`;
+  testo += `Data: ${new Date().toLocaleDateString('it-IT')} · Lingua: ${lang.toUpperCase()}\n`;
+  testo += `${"─".repeat(40)}\n\n`;
+
   allSections.forEach(secId => {
+    const sec = t.sections[secId];
+    testo += `${sec.icon} ${sec.label.toUpperCase()}\n${"─".repeat(30)}\n`;
     SECTIONS[secId].forEach(qId => {
       const qData = t.q[qId];
       if (!qData) return;
       const val = answers[qId];
-      if (val) body[qId] = Array.isArray(val) ? val.join(", ") : val;
+      if (!val || (Array.isArray(val) && val.length === 0)) return;
+      const display = Array.isArray(val) ? val.join(", ") : val;
+      testo += `• ${qData.label}\n  → ${display}\n`;
     });
+    testo += "\n";
   });
+
+  testo += `${"─".repeat(40)}\nOMTStudio · hello@omtstudio.it · omtstudio.it`;
+
+  const body = {
+    "_subject": `📋 Brief — ${answers["businessName"] || "Nuovo cliente"} | OMTStudio`,
+    "message": testo,
+    "lingua": lang.toUpperCase(),
+    "cliente": answers["businessName"] || "Non specificato",
+  };
+
   try {
     const res = await fetch(`https://formspree.io/f/${CONFIG.formspreeId}`, {
       method: "POST",
